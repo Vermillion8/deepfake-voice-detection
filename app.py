@@ -138,7 +138,16 @@ def main():
         st.audio(uploaded_file, format="audio/wav")
 
         with st.spinner("Analyzing audio..."):
-            y, sr = librosa.load(uploaded_file, sr=None)
+            try:
+                audio_bytes = io.BytesIO(uploaded_file.read())
+                y, sr = librosa.load(audio_bytes, sr=None)
+            except Exception as e:
+                st.error(f"Error loading audio file: {e}")
+                st.error(
+                    "The uploaded file might be corrupted or in an unsupported format."
+                )
+                return
+
             window_features = process_audio(y, sr)
 
             if not window_features:
